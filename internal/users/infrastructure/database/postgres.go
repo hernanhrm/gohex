@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gohex/internal/users/domain"
-	"gohex/internal/users/dto"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,8 +26,8 @@ func NewPsql(db *pgxpool.Pool) Psql {
 	return Psql{db: db}
 }
 
-func (p Psql) Create(ctx context.Context, createDto dto.Create) error {
-	commandTag, err := p.db.Exec(ctx, `INSERT INTO users (id, name, email, password, created_at) VALUES ($1, $2, $3, $4, $5)`, createDto.ID, createDto.Name, createDto.Email, createDto.Password, createDto.CreatedAt)
+func (p Psql) Create(ctx context.Context, m domain.User) error {
+	commandTag, err := p.db.Exec(ctx, `INSERT INTO users (id, name, email, password, created_at) VALUES ($1, $2, $3, $4, $5)`, m.ID, m.Name, m.Email, m.Password, m.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -40,8 +39,8 @@ func (p Psql) Create(ctx context.Context, createDto dto.Create) error {
 	return nil
 }
 
-func (p Psql) Update(ctx context.Context, updateDto dto.Update) error {
-	commandTag, err := p.db.Exec(ctx, `UPDATE users SET name = $1, email = $2, updated_at = $3 WHERE id = $4`, updateDto.Name, updateDto.Email, updateDto.UpdatedAt, updateDto.ID)
+func (p Psql) Update(ctx context.Context, m domain.User) error {
+	commandTag, err := p.db.Exec(ctx, `UPDATE users SET name = $1, email = $2, updated_at = $3 WHERE id = $4`, m.Name, m.Email, m.UpdatedAt, m.ID)
 	if err != nil {
 		return err
 	}
@@ -72,21 +71,21 @@ func (p Psql) GetAll(ctx context.Context) (domain.Users, error) {
 		return nil, fmt.Errorf("postgres.db.Query(): %w", err)
 	}
 
-	var users dto.QueryUsers
+	var users domain.Users
 	if err := pgxscan.NewScanner(rows).Scan(&users); err != nil {
 		return nil, err
 	}
 
-	return users.AsDomainUsers(), nil
+	return users, nil
 }
 
 func (p Psql) GetByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	row := p.db.QueryRow(ctx, `SELECT id, name, email, password, created_at, updated_at FROM users WHERE id = $1`, id)
 
-	var user dto.QueryUser
+	var user domain.User
 	if err := pgxscan.NewScanner(row).Scan(&user); err != nil {
 		return domain.User{}, err
 	}
 
-	return user.AsDomainUser(), nil
+	return user, nil
 }

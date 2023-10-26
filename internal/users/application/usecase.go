@@ -2,7 +2,6 @@ package application
 
 import (
 	"gohex/internal/users/domain"
-	"gohex/internal/users/dto"
 
 	"github.com/google/uuid"
 	"golang.org/x/net/context"
@@ -16,12 +15,12 @@ func New(database Database) User {
 	return User{database: database}
 }
 
-func (u User) Create(ctx context.Context, createDto dto.Create) error {
-	return u.database.Create(ctx, createDto)
+func (u User) Create(ctx context.Context, m domain.User) error {
+	return u.database.Create(ctx, m)
 }
 
-func (u User) Update(ctx context.Context, updateDto dto.Update) error {
-	return u.database.Update(ctx, updateDto)
+func (u User) Update(ctx context.Context, m domain.User) error {
+	return u.database.Update(ctx, m)
 }
 
 func (u User) Delete(ctx context.Context, id uuid.UUID) error {
