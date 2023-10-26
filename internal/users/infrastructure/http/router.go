@@ -1,20 +1,21 @@
 package http
 
 import (
-	"gohex/config"
+	"gohex/config/dependor"
 
-	"gohex/internal/users"
+	"gohex/internal/users/application"
+
+	"github.com/labstack/echo/v4"
 )
 
-func NewRouter(config config.Router) {
-	controller := New(users.BuildUseCase(config.DBPool))
+func NewRouter() {
+	controller := New(dependor.Get[application.User]("user"))
 
-	group := config.EchoHttp.Group("/api/v1/users")
+	group := dependor.Get[*echo.Echo]("echo").Group("/api/v1/users")
 
 	group.POST("", controller.Create)
 	group.PUT("", controller.Update)
 	group.DELETE("", controller.Delete)
 	group.GET("", controller.GetAll)
 	group.DELETE("/:id", controller.GetByID)
-
 }

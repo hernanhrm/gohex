@@ -8,7 +8,7 @@ import (
 )
 
 func LoadDatabaseConnection(config LocalConfig) (*pgxpool.Pool, error) {
-	dbpool, err := pgxpool.New(context.Background(), fmt.Sprintf("%s://%s:%s@%s:%d/%s",
+	dbPool, err := pgxpool.New(context.Background(), fmt.Sprintf("%s://%s:%s@%s:%d/%s",
 		config.Database.Driver,
 		config.Database.User,
 		config.Database.Password,
@@ -19,7 +19,11 @@ func LoadDatabaseConnection(config LocalConfig) (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create connection pool: %v\n", err)
 	}
-	defer dbpool.Close()
+	defer dbPool.Close()
 
-	return dbpool, nil
+	if err := dbPool.Ping(context.Background()); err != nil {
+		return nil, fmt.Errorf("Unable to ping database: %v\n", err)
+	}
+
+	return dbPool, nil
 }

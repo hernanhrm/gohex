@@ -2,45 +2,51 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"gohex/config"
-	users "gohex/internal/users/infrastructure/http"
+	"gohex/config/dependor"
+	"gohex/internal"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	dependor.Init()
+
 	cfg := config.LoadLocalConfig()
+	dependor.Set[config.LocalConfig]("local_config", cfg)
+
 	logger := config.LoadLogger()
+	dependor.Set[config.Logger]("logger", logger)
+
 	dbPool, err := config.LoadDatabaseConnection(cfg)
 	if err != nil {
 		logger.Errorw(fmt.Sprintf("restapi.config.LoadDatabaseConnection(): %v", err))
 		return
 	}
+	dependor.Set[*pgxpool.Pool]("db", dbPool)
 
 	e := newEcho(cfg, echo.New().DefaultHTTPErrorHandler)
+	dependor.Set[*echo.Echo]("echo", e)
 
-	initRoutes(cfg, config.Router{
-		Logger:       logger,
-		DBPool:       dbPool,
-		EchoHttp:     e,
-		RemoteConfig: nil,
-	})
+	internal.Load()
+
+	initRoutes()
 
 	// Start server
 	go func() {
-		if err := e.Start(fmt.Sprintf(":%d", cfg.ServerPort)); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(fmt.Sprintf(":%d", cfg.ServerPort)); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
 	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -50,30 +56,4 @@ func main() {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
-
-}
-
-func newEcho(conf config.LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
-	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.RequestID())
-	e.Use(middleware.Secure())
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: time.Minute,
-	}))
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: strings.Split(conf.AllowedDomains, ","),
-		AllowMethods: strings.Split(conf.AllowedMethods, ","),
-	}))
-
-	e.HTTPErrorHandler = errorHandler
-
-	return e
-}
-
-func initRoutes(cfg config.LocalConfig, routerConfig config.Router) {
-	users.NewRouter(routerConfig)
 }

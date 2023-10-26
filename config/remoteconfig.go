@@ -1,4 +1,3 @@
 package config
 
-type RemoteConfig interface {
-}
+type RemoteConfig interface{}
