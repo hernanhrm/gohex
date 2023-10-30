@@ -5,44 +5,33 @@ import (
 	"errors"
 	"fmt"
 	"gohex/config"
-	"gohex/config/dependor"
-	"gohex/internal"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	dependor.Init()
+	localConfig := config.LoadLocalConfig()
+	logger := config.SetupLogger()
 
-	cfg := config.LoadLocalConfig()
-	dependor.Set[config.LocalConfig]("local_config", cfg)
-
-	logger := config.LoadLogger()
-	dependor.Set[config.Logger]("logger", logger)
-
-	dbPool, err := config.LoadDatabaseConnection(cfg)
+	_, err := config.SetupDatabase(localConfig)
 	if err != nil {
 		logger.Errorw(fmt.Sprintf("restapi.config.LoadDatabaseConnection(): %v", err))
 		return
 	}
-	dependor.Set[*pgxpool.Pool]("db", dbPool)
 
-	e := newEcho(cfg, echo.New().DefaultHTTPErrorHandler)
-	dependor.Set[*echo.Echo]("echo", e)
+	server := config.SetupEcho(localConfig, echo.New().DefaultHTTPErrorHandler)
 
-	internal.Load()
-
-	initRoutes()
+	config.SetupDependor()
+	config.SetupRoutes()
 
 	// Start server
 	go func() {
-		if err := e.Start(fmt.Sprintf(":%d", cfg.ServerPort)); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			e.Logger.Fatal("shutting down the server")
+		if err := server.Start(fmt.Sprintf(":%d", localConfig.ServerPort)); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			server.Logger.Fatalf("shutting down the server: %v", err)
 		}
 	}()
 
@@ -53,7 +42,7 @@ func main() {
 	<-quit
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+	if err := server.Shutdown(ctx); err != nil {
+		server.Logger.Fatal(err)
 	}
 }

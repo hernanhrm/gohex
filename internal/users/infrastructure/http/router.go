@@ -1,21 +1,19 @@
 package http
 
 import (
-	"gohex/config/dependor"
-
-	"gohex/internal/users/application"
-
 	"github.com/labstack/echo/v4"
+	"github.com/techforge-lat/dependor"
 )
 
-func NewRouter() {
-	controller := New(dependor.Get[application.User]("user"))
+func SetupRoutes() {
+	server := dependor.GetWithName[*echo.Echo]("server")
+	controller := dependor.Get[*Controller]()
 
-	group := dependor.Get[*echo.Echo]("echo").Group("/api/v1/users")
+	group := server.Group("/api/v1/users")
 
 	group.POST("", controller.Create)
 	group.PUT("", controller.Update)
 	group.DELETE("", controller.Delete)
-	group.GET("", controller.GetAll)
-	group.DELETE("/:id", controller.GetByID)
+	group.GET("", controller.List)
+	group.DELETE("/:id", controller.Get)
 }

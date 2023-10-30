@@ -8,29 +8,25 @@ import (
 )
 
 type User struct {
-	database Database
-}
-
-func New(database Database) User {
-	return User{database: database}
+	Database Database
 }
 
 func (u User) Create(ctx context.Context, m domain.User) error {
-	return u.database.Create(ctx, m)
+	return u.Database.Create(ctx, m)
 }
 
 func (u User) Update(ctx context.Context, m domain.User) error {
-	return u.database.Update(ctx, m)
+	return u.Database.Update(ctx, m)
 }
 
 func (u User) Delete(ctx context.Context, id uuid.UUID) error {
-	return u.database.Delete(ctx, id)
+	return u.Database.Delete(ctx, id)
 }
 
-func (u User) GetAll(ctx context.Context) (domain.Users, error) {
-	return u.database.GetAll(ctx)
+func (u User) List(ctx context.Context) (domain.Users, error) {
+	return u.Database.List(ctx)
 }
 
-func (u User) GetByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
-	return u.database.GetByID(ctx, id)
+func (u User) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return u.Database.Get(ctx, id)
 }

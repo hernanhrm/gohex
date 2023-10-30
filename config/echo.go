@@ -1,15 +1,15 @@
-package main
+package config
 
 import (
-	"gohex/config"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/techforge-lat/dependor"
 )
 
-func newEcho(conf config.LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
+func SetupEcho(conf LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -26,6 +26,11 @@ func newEcho(conf config.LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.
 	}))
 
 	e.HTTPErrorHandler = errorHandler
+
+	dependor.Set[*echo.Echo](dependor.Config{
+		DependencyName: "server",
+		Value:          e,
+	})
 
 	return e
 }

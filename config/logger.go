@@ -1,6 +1,9 @@
 package config
 
-import "go.uber.org/zap"
+import (
+	"github.com/techforge-lat/dependor"
+	"go.uber.org/zap"
+)
 
 type Logger interface {
 	Infow(msg string, keyAndValues ...any)
@@ -9,8 +12,15 @@ type Logger interface {
 	Errorw(msg string, keyAndValues ...any)
 }
 
-func LoadLogger() Logger {
+func SetupLogger() Logger {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() // flushes buffer, if any
-	return logger.Sugar()
+	sugarLogger := logger.Sugar()
+
+	dependor.Set[Logger](dependor.Config{
+		DependencyName: "logger",
+		Value:          sugarLogger,
+	})
+
+	return sugarLogger
 }

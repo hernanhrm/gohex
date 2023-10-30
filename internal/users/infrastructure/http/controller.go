@@ -8,43 +8,39 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type controller struct {
-	useCase UseCase
+type Controller struct {
+	UseCase UseCase
 }
 
-func New(useCase UseCase) controller {
-	return controller{useCase: useCase}
-}
-
-func (c controller) Create(ctx echo.Context) error {
+func (c Controller) Create(ctx echo.Context) error {
 	var m domain.User
 	if err := ctx.Bind(&m); err != nil {
 		return err
 	}
 
-	return c.useCase.Create(ctx.Request().Context(), m)
+	return c.UseCase.Create(ctx.Request().Context(), m)
 }
 
-func (c controller) Update(ctx echo.Context) error {
+func (c Controller) Update(ctx echo.Context) error {
 	var m domain.User
 	if err := ctx.Bind(&m); err != nil {
 		return err
 	}
 
-	return c.useCase.Update(ctx.Request().Context(), m)
+	return c.UseCase.Update(ctx.Request().Context(), m)
 }
 
-func (c controller) Delete(ctx echo.Context) error {
+func (c Controller) Delete(ctx echo.Context) error {
 	id, err := request.GetUUID("id", ctx)
 	if err != nil {
 		return err
 	}
 
-	return c.useCase.Delete(ctx.Request().Context(), id)
+	return c.UseCase.Delete(ctx.Request().Context(), id)
 }
 
-func (c controller) GetAll(ctx echo.Context) error {
-	data, err := c.useCase.GetAll(ctx.Request().Context())
+func (c Controller) List(ctx echo.Context) error {
+	data, err := c.UseCase.List(ctx.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -52,13 +48,13 @@ func (c controller) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (c controller) GetByID(ctx echo.Context) error {
+func (c Controller) Get(ctx echo.Context) error {
 	id, err := request.GetUUID("id", ctx)
 	if err != nil {
 		return err
 	}
 
-	data, err := c.useCase.GetByID(ctx.Request().Context(), id)
+	data, err := c.UseCase.Get(ctx.Request().Context(), id)
 	if err != nil {
 		return err
 	}

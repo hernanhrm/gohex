@@ -1,6 +1,6 @@
 build:
-	go build -o bin/api cmd/restapi/main.go
+	@go build -o ./bin/api ./cmd/restapi
 
 run: build
-	go run cmd/restapi/main.go
+	@./bin/api
 

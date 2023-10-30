@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/viper"
+	"github.com/techforge-lat/dependor"
 )
 
 type LocalConfig struct {
@@ -42,6 +43,11 @@ func LoadLocalConfig() LocalConfig {
 	if err := viper.Unmarshal(&localConfig.Database); err != nil {
 		log.Fatalf("viper.Unmarshal(): %v", err)
 	}
+
+	dependor.Set[LocalConfig](dependor.Config{
+		DependencyName: "local_config",
+		Value:          localConfig,
+	})
 
 	return localConfig
 }

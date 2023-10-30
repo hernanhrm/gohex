@@ -12,6 +12,6 @@ type Database interface {
 	Update(ctx context.Context, m domain.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 
-	GetAll(ctx context.Context) (domain.Users, error)
-	GetByID(ctx context.Context, id uuid.UUID) (domain.User, error)
+	List(ctx context.Context) (domain.Users, error)
+	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 }
