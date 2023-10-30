@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/techforge-lat/dependor"
+	"github.com/techforge-lat/linkit"
 )
 
 func SetupEcho(conf LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
@@ -27,10 +27,7 @@ func SetupEcho(conf LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo 
 
 	e.HTTPErrorHandler = errorHandler
 
-	dependor.Set[*echo.Echo](dependor.Config{
-		DependencyName: "server",
-		Value:          e,
-	})
+	linkit.Set[*echo.Echo](linkit.WithName("server"), linkit.WithValue(e))
 
 	return e
 }

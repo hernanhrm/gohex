@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/viper"
-	"github.com/techforge-lat/dependor"
+	"github.com/techforge-lat/linkit"
 )
 
 type LocalConfig struct {
@@ -44,10 +44,7 @@ func LoadLocalConfig() LocalConfig {
 		log.Fatalf("viper.Unmarshal(): %v", err)
 	}
 
-	dependor.Set[LocalConfig](dependor.Config{
-		DependencyName: "local_config",
-		Value:          localConfig,
-	})
+	linkit.Set[LocalConfig](linkit.WithName("local_config"), linkit.WithValue(localConfig))
 
 	return localConfig
 }

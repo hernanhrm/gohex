@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/techforge-lat/dependor"
+	"github.com/techforge-lat/linkit"
 )
 
 func SetupDatabase(config LocalConfig) (*pgxpool.Pool, error) {
@@ -26,10 +26,7 @@ func SetupDatabase(config LocalConfig) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("Unable to ping database: %v\n", err)
 	}
 
-	dependor.Set[*pgxpool.Pool](dependor.Config{
-		DependencyName: "db",
-		Value:          dbPool,
-	})
+	linkit.Set[*pgxpool.Pool](linkit.WithName("db"), linkit.WithValue(dbPool))
 
 	return dbPool, nil
 }

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/techforge-lat/dependor"
+	"github.com/techforge-lat/linkit"
 	"go.uber.org/zap"
 )
 
@@ -17,10 +17,7 @@ func SetupLogger() Logger {
 	defer logger.Sync() // flushes buffer, if any
 	sugarLogger := logger.Sugar()
 
-	dependor.Set[Logger](dependor.Config{
-		DependencyName: "logger",
-		Value:          sugarLogger,
-	})
+	linkit.Set[Logger](linkit.WithName("logger"), linkit.WithValue(sugarLogger))
 
 	return sugarLogger
 }

@@ -2,12 +2,12 @@ package http
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/techforge-lat/dependor"
+	"github.com/techforge-lat/linkit"
 )
 
 func SetupRoutes() {
-	server := dependor.GetWithName[*echo.Echo]("server")
-	controller := dependor.Get[*Controller]()
+	server := linkit.GetWithName[*echo.Echo]("server")
+	controller := linkit.Get[*Controller]()
 
 	group := server.Group("/api/v1/users")
 
