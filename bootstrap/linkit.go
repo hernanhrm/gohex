@@ -1,4 +1,4 @@
-package config
+package bootstrap
 
 import (
 	"gohex/internal/users"
@@ -6,7 +6,7 @@ import (
 	"github.com/techforge-lat/linkit"
 )
 
-func SetupLinkit() {
+func setupLinkit() {
 	users.SetDependencies()
 
 	// must be at the end, after every root dependency has been set

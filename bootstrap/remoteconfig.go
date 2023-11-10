@@ -1,3 +1,3 @@
-package config
+package bootstrap
 
 type RemoteConfig interface{}

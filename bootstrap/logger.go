@@ -1,4 +1,4 @@
-package config
+package bootstrap
 
 import (
 	"github.com/techforge-lat/linkit"
@@ -12,7 +12,7 @@ type Logger interface {
 	Errorw(msg string, keyAndValues ...any)
 }
 
-func SetupLogger() Logger {
+func setupLogger() Logger {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() // flushes buffer, if any
 	sugarLogger := logger.Sugar()

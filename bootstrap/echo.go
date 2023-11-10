@@ -1,4 +1,4 @@
-package config
+package bootstrap
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 	"github.com/techforge-lat/linkit"
 )
 
-func SetupEcho(conf LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
+func setupEcho(conf LocalConfig, errorHandler echo.HTTPErrorHandler) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())

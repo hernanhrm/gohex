@@ -1,4 +1,4 @@
-package config
+package bootstrap
 
 import (
 	"log"
@@ -23,7 +23,7 @@ type Database struct {
 	Name     string `mapstructure:"DATABASE_NAME"`
 }
 
-func LoadLocalConfig() LocalConfig {
+func loadLocalConfig() LocalConfig {
 	viper.AddConfigPath(".")
 	viper.SetEnvPrefix("")
 	viper.SetConfigName(".env")

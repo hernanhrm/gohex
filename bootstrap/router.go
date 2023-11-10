@@ -1,11 +1,11 @@
-package config
+package bootstrap
 
 import (
 	"gohex/internal/health"
 	users "gohex/internal/users/infrastructure/http"
 )
 
-func SetupRoutes() {
+func setupRoutes() {
 	health.SetupRoutes()
 
 	users.SetupRoutes()

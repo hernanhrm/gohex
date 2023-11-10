@@ -1,4 +1,4 @@
-package config
+package bootstrap
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/techforge-lat/linkit"
 )
 
-func SetupDatabase(config LocalConfig) (*pgxpool.Pool, error) {
+func setupDatabase(config LocalConfig) (*pgxpool.Pool, error) {
 	dbPool, err := pgxpool.New(context.Background(), fmt.Sprintf("%s://%s:%s@%s:%d/%s",
 		config.Database.Driver,
 		config.Database.User,
