@@ -10,19 +10,19 @@ import (
 
 func SetDependencies() {
 	linkit.Set[*database.Psql](
-		linkit.WithAuxiliarDependencies(map[string]string{
+		linkit.WithAuxiliaryDependencies(map[string]string{
 			"DB": "db",
 		}),
 	)
 
 	linkit.Set[*application.User](
-		linkit.WithAuxiliarDependencies(map[string]string{
+		linkit.WithAuxiliaryDependencies(map[string]string{
 			"Database": linkit.Name(database.Psql{}),
 		}),
 	)
 
 	linkit.Set[*http.Controller](
-		linkit.WithAuxiliarDependencies(map[string]string{
+		linkit.WithAuxiliaryDependencies(map[string]string{
 			"UseCase": linkit.Name(application.User{}),
 		}),
 	)
